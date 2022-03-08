@@ -23,3 +23,32 @@
 - 모듈화까지는 아니더라도 컴포넌트 분리해두고 사용할 수 있게끔 변경 처리 완료
 - 모듈화를하여 땡겨서 사용해볼려고 하였으나 어떤형식으로 교체가 필요한지 감이 안잡혀서 컴포넌트 단위로 분리만 시킴
 - 모듈 안에서 이미지를 불로오게 할지 사용하는 컴포넌트 내에서 불러와서 이미지를 전달 시켜줄지는 정하지 못하여 현재는 사용하는 컴포넌트 내에서 불러오게끔 구현
+
+# 권한 관련 필수로 확인하여야합니다.
+
+- ios 같은 경우 info.plist 에
+
+```plist
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>상담방에서 사진 업로드를 위한 권한</string>
+```
+
+가 없을 경우 이미지 호출이 안될수 있습니다. 필수로 체크해주셔야됩니다.
+
+- android 같은 경우에는 AndroidManifest.xml에 아래와 같은
+
+```xml
+ <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+```
+
+및
+
+```xml
+  <application
+      ...
+      android:requestLegacyExternalStorage="true" >
+```
+
+필수로 적용시켜야지 이상없이 동작합니다.
