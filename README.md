@@ -30,7 +30,7 @@
 
 ```plist
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>상담방에서 사진 업로드를 위한 권한</string>
+	<string>사진 권한</string>
 ```
 
 가 없을 경우 이미지 호출이 안될수 있습니다. 필수로 체크해주셔야됩니다.
