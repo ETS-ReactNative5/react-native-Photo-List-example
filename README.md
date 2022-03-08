@@ -38,8 +38,8 @@
 - android 같은 경우에는 AndroidManifest.xml에 아래와 같은
 
 ```xml
- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
 ```
 
