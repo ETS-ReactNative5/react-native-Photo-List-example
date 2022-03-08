@@ -59,7 +59,9 @@ const Photo_List = () => {
             .then(async r => {
               await setPick_count(r[0].count);
               await setGroup_name(r);
-              await setPick_group(r[0].title);
+              await setTimeout(() => {
+                setPick_group(r[0].title);
+              }, 500);
             })
             .catch(err => {
               //Error Loading Images
@@ -74,9 +76,11 @@ const Photo_List = () => {
         groupName: pick_group,
       })
         .then(async r => {
-          await setPick_count(r[0].count);
           await setGroup_name(r);
-          await setPick_group(r[0].title);
+          await setPick_count(r[0].count);
+          await setTimeout(() => {
+            setPick_group(r[0].title);
+          }, 500);
         })
         .catch(err => {
           //Error Loading Images
