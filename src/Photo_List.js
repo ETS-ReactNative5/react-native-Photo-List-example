@@ -19,14 +19,18 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ModalDropdown from 'react-native-modal-dropdown';
 import AutoHeightImage from 'react-native-auto-height-image';
-import Loading from './Loading';
+import ModalPhotoHeader from './components/ModalPhotoHeader';
+import ModalPhotoBottomSheet from './components/ModalPhotoBottomSheet';
+const PHOTO_COUTN = 5000;
 const Photo_List = () => {
   const [image, setImage] = useState([]);
   const [group_name, setGroup_name] = useState(['전체']);
   const [pick_group, setPick_group] = useState('');
+  const [pick_count, setPick_count] = useState(0);
   const [choise_imasge, setChoise_imasge] = useState([]);
   const [final_image, setFinal_image] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const hasAndroidPermission = async () => {
     try {
       const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
@@ -42,24 +46,20 @@ const Photo_List = () => {
       console.log(error);
     }
   };
-  async function _handleButtonPress() {
+  const _handleAlbumArray = async () => {
     if (Platform.OS === 'android') {
       hasAndroidPermission().then(res => {
         if (res === true) {
-          CameraRoll.getPhotos({
-            first: 99999999999999,
+          CameraRoll.getAlbums({
+            first: PHOTO_COUTN,
             assetType: 'Photos',
             groupTypes: 'All',
-            groupName: pick_group === '전체' ? '' : pick_group,
+            groupName: pick_group,
           })
-            .then(r => {
-              const groupNamesAr = R.map(item => {
-                return item.node.group_name;
-              })(r.edges);
-              groupNames = R.countBy(i => i)(groupNamesAr);
-              setGroup_name(data => [...data, ...Object.keys(groupNames)]);
-              setImage(r.edges);
-              setPick_group('전체');
+            .then(async r => {
+              await setPick_count(r[0].count);
+              await setGroup_name(r);
+              await setPick_group(r[0].title);
             })
             .catch(err => {
               //Error Loading Images
@@ -67,51 +67,55 @@ const Photo_List = () => {
         }
       });
     } else {
-      CameraRoll.getPhotos({
-        first: 99999999999999,
+      CameraRoll.getAlbums({
+        first: PHOTO_COUTN,
         assetType: 'Photos',
         groupTypes: 'All',
-        groupName: 'Camera Roll',
+        groupName: pick_group,
       })
-        .then(r => {
-          const groupNamesAr = R.map(item => {
-            return item.node.group_name;
-          })(r?.edges ?? []);
-          groupNames = R.countBy(i => i)(groupNamesAr);
-          setGroup_name(data => [...Object.keys(groupNames)]);
-          setPick_group(Object.keys(groupNames)[0]);
-          setImage(r.edges);
+        .then(async r => {
+          await setPick_count(r[0].count);
+          await setGroup_name(r);
+          await setPick_group(r[0].title);
         })
         .catch(err => {
           //Error Loading Images
         });
     }
-  }
-  async function _handleChage_group() {
-    setLoading(true);
-    CameraRoll.getPhotos({
-      first: 99999999999999,
-      assetType: 'Photos',
-      groupTypes: 'All',
-      groupName: pick_group === '전체' ? '' : pick_group,
-    })
-      .then(r => {
-        setLoading(false);
-        setImage(r.edges);
+  };
+  const _handleAlbumList = async () => {
+    try {
+      setLoading(true);
+      CameraRoll.getPhotos({
+        first: pick_count,
+        assetType: 'Photos',
+        groupTypes: 'Album',
+        groupName: pick_group,
       })
-      .catch(err => {
-        setLoading(false);
+        .then(r => {
+          setLoading(false);
+          setImage(r?.edges);
+        })
+        .catch(err => {
+          console.log(err);
+          setLoading(false);
 
-        //Error Loading Images
-      });
-  }
+          //Error Loading Images
+        });
+    } catch (error) {
+      setLoading(false);
+      console.log('error ::: ', error);
+    }
+  };
+
   useEffect(() => {
-    _handleButtonPress();
+    _handleAlbumArray();
+    setLoading(false);
   }, []);
 
   //바꼈을때
   useEffect(() => {
-    _handleChage_group();
+    _handleAlbumList();
   }, [pick_group]);
 
   // hooks
@@ -123,17 +127,6 @@ const Photo_List = () => {
   const handlePresentModalPress = useCallback(() => {
     sheetRef.current?.present();
   }, []);
-
-  //비교 함수
-  const someArray = item => {
-    return choise_imasge.some(data => {
-      if (data.uri == item) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  };
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#b2b2b2'}}>
@@ -171,166 +164,20 @@ const Photo_List = () => {
             );
           })}
         </View>
-        <BottomSheetModal
-          enableOverDrag={true}
-          ref={sheetRef}
+        <ModalPhotoBottomSheet
+          sheetRef={sheetRef}
+          choise_imasge={choise_imasge}
+          group_name={group_name}
+          pick_group={pick_group}
+          setPick_group={setPick_group}
+          setChoise_imasge={setChoise_imasge}
+          setFinal_image={setFinal_image}
+          data={image}
           snapPoints={snapPoints}
-          // onChange={handleSheetChanges}
-        >
-          <View style={{flex: 1}}>
-            <View
-              style={{
-                width: '100%',
-                flexDirection: 'row',
-                paddingHorizontal: 5,
-                paddingVertical: 5,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  sheetRef.current?.forceClose();
-                  setPick_group(group_name[0]);
-                  setChoise_imasge([]);
-                }}>
-                <Text>닫기</Text>
-              </TouchableOpacity>
-              <ModalDropdown
-                style={{
-                  alignSelf: 'flex-end',
-                  width: Dimensions.get('window').width * 0.41,
-                  borderWidth: 1,
-                  borderRadius: 10,
-                  borderColor: '#0000001A',
-                }}
-                dropdownStyle={{
-                  width: Dimensions.get('window').width * 0.41,
-                  borderColor: '#0000001A',
-                  borderWidth: 2,
-                  borderRadius: 10,
-                  paddingTop: 5,
-                  paddingBottom: 5,
-                }}
-                dropdownTextStyle={[
-                  {
-                    color: '#111',
-                  },
-                ]}
-                options={group_name}
-                renderButtonText={rowData => {
-                  setPick_group(rowData);
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    height: 40,
-                    alignItems: 'center',
-                    paddingLeft: 5,
-                    paddingRight: 5,
-                  }}>
-                  <View style={{flex: 1}}>
-                    <Text
-                      style={[
-                        {
-                          color: '#333',
-                          textAlign: 'center',
-                        },
-                      ]}>
-                      {pick_group.length === 0 ? '전체' : pick_group}
-                    </Text>
-                  </View>
-                  <View>
-                    <AutoHeightImage
-                      width={15}
-                      source={require('./assets/images/drop_down.png')}
-                    />
-                  </View>
-                </View>
-              </ModalDropdown>
-              <View style={{alignItems: 'flex-end'}}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setFinal_image(choise_imasge);
-                    setPick_group(group_name[0]);
-                    sheetRef.current?.forceClose();
-                  }}>
-                  <Text>확인</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <BottomSheetFlatList
-              scrollEnabled={!loading}
-              numColumns={3}
-              data={image}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item, index}) => (
-                <TouchableOpacity
-                  onPress={() => console.log(item)}
-                  style={{
-                    width: Dimensions.get('window').width * 0.32,
-                    height: 120,
-                    marginTop: 10,
-                    marginLeft: Dimensions.get('window').width * 0.01,
-                  }}>
-                  <Image
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: 10,
-                    }}
-                    source={{uri: item.node.image.uri}}
-                  />
-                  <View
-                    style={{
-                      width: 20,
-                      height: 20,
-                      position: 'absolute',
-                      right: 0,
-                      borderTopRightRadius: 5,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 200,
-                      backgroundColor: '#fff',
-                    }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        if (someArray(item.node.image.uri) === true) {
-                          setChoise_imasge(
-                            choise_imasge.filter(data => {
-                              return data.uri !== item.node.image.uri;
-                            }),
-                          );
-                        } else {
-                          setChoise_imasge(data => {
-                            return [
-                              ...data,
-                              {
-                                uri: item.node.image.uri,
-                                type: 'image',
-                                name: item.node.image.filename,
-                              },
-                            ];
-                          });
-                        }
-                      }}>
-                      <AutoHeightImage
-                        width={20}
-                        style={{borderTopRightRadius: 5}}
-                        source={
-                          someArray(item.node.image.uri) === true
-                            ? require('./assets/images/chack_on.png')
-                            : require('./assets/images/chack_off.png')
-                        }
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
-              )}
-              contentContainerStyle={styles.contentContainer}
-            />
-            {loading && <Loading transparent />}
-          </View>
-        </BottomSheetModal>
+          numColumns={3}
+          loading={loading}
+          setPick_count={setPick_count}
+        />
       </View>
     </SafeAreaView>
   );
