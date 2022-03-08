@@ -8,18 +8,9 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import BottomSheet, {
-  BottomSheetFlatList,
-  BottomSheetModal,
-  useBottomSheetSpringConfigs,
-} from '@gorhom/bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
-import R from 'ramda';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import ModalDropdown from 'react-native-modal-dropdown';
-import AutoHeightImage from 'react-native-auto-height-image';
-import ModalPhotoHeader from './components/ModalPhotoHeader';
 import ModalPhotoBottomSheet from './components/ModalPhotoBottomSheet';
 const PHOTO_COUTN = 5000;
 const Photo_List = () => {
