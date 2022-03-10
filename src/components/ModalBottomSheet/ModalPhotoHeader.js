@@ -36,6 +36,7 @@ const ModalPhotoHeader = props => {
     choise_imasge = [], //선택한 이미지 파일
     group_name = [], //그룹 파일 네임 배열
     pick_group = '전체', //선택된 그룹 명
+    final_image = [], //선택된 이미지
   } = props;
 
   //실행 함수 정의
@@ -55,7 +56,7 @@ const ModalPhotoHeader = props => {
           await setTimeout(() => {
             setPick_group(group_name[0].title);
           }, 500);
-          setChoise_imasge([]);
+          setChoise_imasge(final_image);
         }}>
         <Text style={[styles.leftViewTextStyle, leftViewTextStyle]}>닫기</Text>
       </TouchableOpacity>
@@ -103,7 +104,9 @@ const ModalPhotoHeader = props => {
           <View>
             <Image
               style={[styles.ModalDropViewImageStyle, dropDownViewImageStyle]}
-              source={image ? image : require('../assets/images/drop_down.png')}
+              source={
+                image ? image : require('../../assets/images/drop_down.png')
+              }
             />
           </View>
         </View>

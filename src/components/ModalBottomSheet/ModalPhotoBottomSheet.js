@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useCallback} from 'react';
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetModal,
@@ -10,10 +10,10 @@ import {
   Image,
   Dimensions,
   StyleSheet,
+  Text,
 } from 'react-native';
 import ModalPhotoHeader from './ModalPhotoHeader';
-import Loading from './Loading';
-import FastImage from 'react-native-fast-image';
+import Loading from '../Loading';
 
 const ModalPhotoBottomSheet = props => {
   //ref변수
@@ -24,6 +24,7 @@ const ModalPhotoBottomSheet = props => {
     choise_imasge = [], //선택한 이미지 파일
     group_name = [], //그룹 파일 네임 배열
     pick_group = '전체', //선택된 그룹 명
+    final_image = [], //선택된 이미지
   } = props;
 
   //실행 함수 정의
@@ -54,12 +55,16 @@ const ModalPhotoBottomSheet = props => {
       }
     });
   };
-
+  // 모달이 완전히 내려갔을때 처리 부분
+  const handleSheetChange = useCallback(index => {
+    index === -1 && setChoise_imasge(final_image);
+  }, []);
   return (
     <BottomSheetModal
       enableOverDrag={true}
       ref={sheetRef}
-      snapPoints={snapPoints}>
+      snapPoints={snapPoints}
+      onChange={handleSheetChange}>
       <View style={{flex: 1}}>
         <ModalPhotoHeader
           {...props}
@@ -80,46 +85,61 @@ const ModalPhotoBottomSheet = props => {
             return CustomRenderItem ? (
               <CustomRenderItem item={item} index={index} />
             ) : (
-              <View style={[styles.ImageChoiseView]}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (someArray(item.node.image.uri) === true) {
+                    setChoise_imasge(
+                      choise_imasge.filter(data => {
+                        return data.uri !== item.node.image.uri;
+                      }),
+                    );
+                  } else {
+                    setChoise_imasge(data => {
+                      return [
+                        ...data,
+                        {
+                          uri: item.node.image.uri,
+                          type: 'image',
+                          name: item.node.image.filename,
+                        },
+                      ];
+                    });
+                  }
+                }}
+                style={[
+                  styles.ImageChoiseView,
+                  {
+                    borderWidth: 2,
+                    borderColor: someArray(item.node.image.uri)
+                      ? 'skyblue'
+                      : '#fff',
+                    borderRadius: 10,
+                  },
+                ]}>
                 <Image
                   style={[styles.ImageStyle]}
                   source={{
                     uri: item.node.image.uri,
                   }}
                 />
-                <View style={[styles.ImageChoiseButtonView]}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (someArray(item.node.image.uri) === true) {
-                        setChoise_imasge(
-                          choise_imasge.filter(data => {
-                            return data.uri !== item.node.image.uri;
-                          }),
-                        );
-                      } else {
-                        setChoise_imasge(data => {
-                          return [
-                            ...data,
-                            {
-                              uri: item.node.image.uri,
-                              type: 'image',
-                              name: item.node.image.filename,
-                            },
-                          ];
-                        });
-                      }
-                    }}>
-                    <Image
-                      style={[styles.ImageChoiseButtonStyle]}
-                      source={
-                        someArray(item.node.image.uri) === true
-                          ? require('../assets/images/chack_on.png')
-                          : require('../assets/images/chack_off.png')
-                      }
-                    />
-                  </TouchableOpacity>
+                <View
+                  style={[
+                    styles.ImageChoiseButtonView,
+                    someArray(item.node.image.uri) && {
+                      backgroundColor: 'skyblue',
+                      borderColor: 'skyblue',
+                    },
+                  ]}>
+                  {choise_imasge?.length !== 0 &&
+                    choise_imasge.find(x => x.uri === item.node.image.uri) && (
+                      <Text style={[styles.FontChoiseButtonStyle]}>
+                        {choise_imasge?.findIndex(
+                          obj => obj?.uri == item.node.image.uri,
+                        ) + 1 ?? ''}
+                      </Text>
+                    )}
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
           contentContainerStyle={styles.contentContainer}
@@ -145,22 +165,24 @@ const styles = StyleSheet.create({
   ImageStyle: {
     width: '100%',
     height: '100%',
-    borderRadius: 10,
+    borderRadius: 8,
   },
   ImageChoiseButtonView: {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
     position: 'absolute',
-    right: 0,
-    borderTopRightRadius: 5,
+    top: 2,
+    right: 2,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 200,
-    backgroundColor: '#fff',
+    borderColor: '#fff',
+    borderRadius: 100,
+    borderWidth: 2,
   },
-  ImageChoiseButtonStyle: {
-    width: 20,
-    height: 20,
-    borderTopRightRadius: 5,
+  FontChoiseButtonStyle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });

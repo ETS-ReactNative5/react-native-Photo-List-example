@@ -11,17 +11,20 @@ import {
 import CameraRoll from '@react-native-community/cameraroll';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import ModalPhotoBottomSheet from './components/ModalPhotoBottomSheet';
+import ModalPhotoBottomSheet from './components/ModalBottomSheet/ModalPhotoBottomSheet';
+import BottomPhotoFlatList from './components/Bottom/BottomPhotoFlatList';
 const PHOTO_COUTN = 5000;
 const Photo_List = () => {
   const [image, setImage] = useState([]);
-  const [group_name, setGroup_name] = useState(['전체']);
+  const [group_name, setGroup_name] = useState([
+    {title: '전체', count: PHOTO_COUTN},
+  ]);
   const [pick_group, setPick_group] = useState('');
   const [pick_count, setPick_count] = useState(0);
   const [choise_imasge, setChoise_imasge] = useState([]);
   const [final_image, setFinal_image] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [open, setOpen] = useState(false);
   const hasAndroidPermission = async () => {
     try {
       const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
@@ -48,10 +51,11 @@ const Photo_List = () => {
             groupName: pick_group,
           })
             .then(async r => {
+              console.log(r);
               await setPick_count(r[0].count);
-              await setGroup_name(r);
+              await setGroup_name(data => [...data, ...r]);
               await setTimeout(() => {
-                setPick_group(r[0].title);
+                setPick_group('전체');
               }, 500);
             })
             .catch(err => {
@@ -67,10 +71,13 @@ const Photo_List = () => {
         groupName: pick_group,
       })
         .then(async r => {
-          await setGroup_name(r);
-          await setPick_count(r[0].count);
+          console.log(r);
+          await setGroup_name(data => [...data, ...r]);
+          // await setPick_count(r[0].count);
+          await setPick_count(PHOTO_COUTN);
           await setTimeout(() => {
-            setPick_group(r[0].title);
+            // setPick_group(r[0].title);
+            setPick_group('전체');
           }, 500);
         })
         .catch(err => {
@@ -81,22 +88,39 @@ const Photo_List = () => {
   const _handleAlbumList = async () => {
     try {
       setLoading(true);
-      CameraRoll.getPhotos({
-        first: pick_count,
-        assetType: 'Photos',
-        groupTypes: 'Album',
-        groupName: pick_group,
-      })
-        .then(r => {
-          setLoading(false);
-          setImage(r?.edges);
+      if (pick_group === '전체') {
+        CameraRoll.getPhotos({
+          first: pick_group === '전체' ? PHOTO_COUTN : PHOTO_COUTN,
+          assetType: 'Photos',
         })
-        .catch(err => {
-          console.log(err);
-          setLoading(false);
+          .then(r => {
+            setLoading(false);
+            setImage(r?.edges);
+          })
+          .catch(err => {
+            console.log(err);
+            setLoading(false);
 
-          //Error Loading Images
-        });
+            //Error Loading Images
+          });
+      } else {
+        CameraRoll.getPhotos({
+          first: pick_group === '전체' ? PHOTO_COUTN : pick_count,
+          assetType: 'Photos',
+          groupTypes: 'Album',
+          groupName: pick_group,
+        })
+          .then(r => {
+            setLoading(false);
+            setImage(r?.edges);
+          })
+          .catch(err => {
+            console.log(err);
+            setLoading(false);
+
+            //Error Loading Images
+          });
+      }
     } catch (error) {
       setLoading(false);
       console.log('error ::: ', error);
@@ -125,12 +149,24 @@ const Photo_List = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#b2b2b2'}}>
-      <View style={styles.container}>
+      <View
+        onStartShouldSetResponder={async () => {
+          await setPick_count(group_name[0].count);
+          await setTimeout(() => {
+            setPick_group(group_name[0].title);
+          }, 500);
+          setChoise_imasge(final_image);
+          setOpen(false);
+        }}
+        style={styles.container}>
         <View>
           <Text>사진 랜더링후 불러오기 삽질중 하하</Text>
         </View>
         <TouchableOpacity onPress={handlePresentModalPress}>
-          <Text>오픈</Text>
+          <Text>바톰 오픈</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setOpen(true)}>
+          <Text>카톡 이미지 리스트 처럼 만든애 오픈</Text>
         </TouchableOpacity>
         <View>
           <Text>이미지 나열 하하하하 </Text>
@@ -164,6 +200,7 @@ const Photo_List = () => {
           choise_imasge={choise_imasge}
           group_name={group_name}
           pick_group={pick_group}
+          final_image={final_image}
           setPick_group={setPick_group}
           setChoise_imasge={setChoise_imasge}
           setFinal_image={setFinal_image}
@@ -174,6 +211,24 @@ const Photo_List = () => {
           setPick_count={setPick_count}
         />
       </View>
+      {/* 하단에 생기게 하는 요소 example  */}
+      <BottomPhotoFlatList
+        open={true}
+        choise_imasge={choise_imasge}
+        group_name={group_name}
+        pick_group={pick_group}
+        final_image={final_image}
+        setPick_group={setPick_group}
+        setChoise_imasge={setChoise_imasge}
+        setFinal_image={setFinal_image}
+        data={image}
+        snapPoints={snapPoints}
+        numColumns={3}
+        loading={loading}
+        setPick_count={setPick_count}
+        setOpen={setOpen}
+        open={open}
+      />
     </SafeAreaView>
   );
 };
