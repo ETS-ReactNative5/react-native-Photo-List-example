@@ -9,6 +9,7 @@
 
 |                                  `Ios`                                   |                                  `Android`                                   |
 | :----------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
+|                              `BottomSheet`                               |                                `BottomSheet`                                 |
 | <img src="./src/assets/images/photo_ios.gif"  width="200" height="400"/> | <img src="./src/assets/images/photo_android.gif"  width="200" height="400"/> |
 
 </center>
@@ -52,3 +53,16 @@
 ```
 
 필수로 적용시켜야지 이상없이 동작합니다.
+
+# KaKao 이미지 선택 부분 컴포넌트 제작 진행중
+
+<center>
+
+|                                  `Ios`                                   |                                     `Android`                                      |
+| :----------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
+|                               `ImageModal`                               |                                    `ImageModal`                                    |
+| <img src="./src/assets/images/photo_ios.gif"  width="200" height="400"/> | <img src="./src/assets/images/android_kakao_photo.gif"  width="200" height="400"/> |
+
+</center>
+
+- 현재는 실행되게 끔만 해두었습니다. 조금더 작업이 필요합니다.
