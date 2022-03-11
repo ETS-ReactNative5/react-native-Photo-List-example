@@ -58,10 +58,10 @@
 
 <center>
 
-|                                  `Ios`                                   |                                     `Android`                                      |
-| :----------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
-|                               `ImageModal`                               |                                    `ImageModal`                                    |
-| <img src="./src/assets/images/photo_ios.gif"  width="200" height="400"/> | <img src="./src/assets/images/android_kakao_photo.gif"  width="200" height="400"/> |
+|                                     `Ios`                                      |                                     `Android`                                      |
+| :----------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
+|                                  `ImageModal`                                  |                                    `ImageModal`                                    |
+| <img src="./src/assets/images/ios_kakao_photo.gif"  width="200" height="400"/> | <img src="./src/assets/images/android_kakao_photo.gif"  width="200" height="400"/> |
 
 </center>
 
