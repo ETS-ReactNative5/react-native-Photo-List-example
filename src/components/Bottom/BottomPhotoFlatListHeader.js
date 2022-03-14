@@ -26,8 +26,6 @@ const BottomPhotoFlatListHeader = props => {
     image = null, //이미지 uri require('../image/text.png') or {uri: https://uri.png}
   } = props;
 
-  //ref변수
-
   //필요 변수 정의
   const {
     choise_imasge = [], //선택한 이미지 파일
@@ -44,6 +42,12 @@ const BottomPhotoFlatListHeader = props => {
     setFinal_image = () => {}, //선택후 완료
     close = () => {}, // 모달 닫기
   } = props;
+  //커스텀 아이콘
+  const {
+    left_icon = null, //커스텀 왼쪽 아이콘 이미지
+    right_icon = null, //커스텀 오른쪽 아이콘 이미지
+  } = props;
+
   return (
     <View style={[styles.HeaderConteiner, HeaderConteiner]}>
       <TouchableOpacity
@@ -65,8 +69,12 @@ const BottomPhotoFlatListHeader = props => {
           setChoise_imasge(final_image);
         }}>
         <Image
-          style={{width: 20, height: 20}}
-          source={require('../../assets/images/close_icon.png')}
+          style={[styles.ModalDropViewImageStyle, dropDownViewImageStyle]}
+          source={
+            left_icon
+              ? left_icon
+              : require('../../assets/images/close_icon.png')
+          }
         />
       </TouchableOpacity>
       <ModalDropdown
@@ -149,7 +157,11 @@ const BottomPhotoFlatListHeader = props => {
               }}>
               <Image
                 style={{width: 20, height: 20}}
-                source={require('../../assets/images/send_icon.png')}
+                source={
+                  right_icon
+                    ? right_icon
+                    : require('../../assets/images/send_icon.png')
+                }
               />
             </TouchableOpacity>
           )}
@@ -200,5 +212,5 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  ModalDropViewImageStyle: {width: 15, height: 15},
+  ModalDropViewImageStyle: {width: 20, height: 20},
 });

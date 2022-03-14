@@ -47,6 +47,25 @@ const BottomPhotoFlatList = props => {
     data = [], // FlatList 초기값
   } = props;
 
+  //커스텀 아이콘
+  const {
+    left_icon = null, //커스텀 왼쪽 아이콘 이미지
+    left_icon_size = 20, // 커스텀 왼쪽 아이콘 사이즈
+    right_icon = null, //커스텀 오른쪽 아이콘 이미지
+    right_icon_size = 20, //커스텀 오른쪽 아이콘 사이즈
+    bottom_icon = null, //하단 아이콘 이미지
+    bottom_icon_size = 20, //하단 아이콘 사이즈
+    bottom_Text = '전체', //하든 글씨
+  } = props;
+
+  //커스텀 아이콘 스타일
+  const {
+    LeftIconViewStyle = null, //왼쪽아이콘 컨테이너 스타일
+    RightIconViewStyle = null, //오른쪽 아이콘 컨테이너 스타일
+    BottomViewStyle = null, //바텀뷰 스타일
+    BottomViewTextStyle = null, //바텀 텍스트 스타일
+  } = props;
+
   //비교 함수
   const someArray = item => {
     return choise_imasge.some(data => {
@@ -81,7 +100,8 @@ const BottomPhotoFlatList = props => {
           style={{
             width: '100%',
             flexDirection: 'row',
-            height: 40,
+            height: left_icon_size * 2,
+            alignItems: 'center',
           }}>
           <TouchableOpacity
             onPress={async () => {
@@ -92,16 +112,25 @@ const BottomPhotoFlatList = props => {
               setChoise_imasge(final_image);
               setOpen(false);
             }}
-            style={{
-              width: 40,
-              height: 40,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              style={{width: 20, height: 20}}
-              source={require('../../assets/images/close_icon.png')}
-            />
+            style={[
+              styles.IconViewStyle,
+              {
+                width: left_icon_size * 2,
+                height: left_icon_size * 2,
+              },
+              LeftIconViewStyle,
+            ]}>
+            {left_icon ? (
+              <Image
+                style={{width: left_icon_size, height: left_icon_size}}
+                source={left_icon}
+              />
+            ) : (
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../../assets/images/close_icon.png')}
+              />
+            )}
           </TouchableOpacity>
           <View style={{flex: 1, alignItems: 'flex-end'}}>
             {choise_imasge.length !== 0 && (
@@ -114,17 +143,26 @@ const BottomPhotoFlatList = props => {
                   }, 500);
                   setOpen(false);
                 }}
-                style={{
-                  width: 40,
-                  height: 40,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: 'skyblue',
-                }}>
-                <Image
-                  style={{width: 20, height: 20}}
-                  source={require('../../assets/images/send_icon.png')}
-                />
+                style={[
+                  styles.IconViewStyle,
+                  {
+                    width: right_icon_size * 2,
+                    height: right_icon_size * 2,
+                    backgroundColor: 'skyblue',
+                  },
+                  RightIconViewStyle,
+                ]}>
+                {right_icon ? (
+                  <Image
+                    style={{width: right_icon_size, height: right_icon_size}}
+                    source={right_icon}
+                  />
+                ) : (
+                  <Image
+                    style={{width: 20, height: 20}}
+                    source={require('../../assets/images/send_icon.png')}
+                  />
+                )}
               </TouchableOpacity>
             )}
           </View>
@@ -210,19 +248,26 @@ const BottomPhotoFlatList = props => {
               setOpen(false);
               setIsModal(true);
             }}
-            style={{
-              width: 'auto',
-              height: 20,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              style={{width: 20, height: 20}}
-              source={require('../../assets/images/all_icon.png')}
-            />
-            <Text style={{fontSize: 15, fontWeight: '600', marginLeft: 5}}>
-              전체
+            style={[
+              styles.BottomViewStyle,
+              {
+                height: bottom_icon_size,
+              },
+              BottomViewStyle,
+            ]}>
+            {bottom_icon ? (
+              <Image
+                style={{width: bottom_icon_size, height: bottom_icon_size}}
+                source={bottom_icon}
+              />
+            ) : (
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../../assets/images/all_icon.png')}
+              />
+            )}
+            <Text style={[styles.BottomViewTextStyle, BottomViewTextStyle]}>
+              {bottom_Text}
             </Text>
           </TouchableOpacity>
         </View>
@@ -276,5 +321,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: '#333',
+  },
+  //아이콘 스타일 정의
+  IconViewStyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  //바텀 컨테이너
+  BottomViewStyle: {
+    width: 'auto',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  BottomViewTextStyle: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 5,
   },
 });

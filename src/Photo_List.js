@@ -228,6 +228,8 @@ const Photo_List = () => {
         setPick_count={setPick_count}
         setOpen={setOpen}
         open={open}
+        left_icon={null}
+        left_icon_size={20}
       />
     </SafeAreaView>
   );
